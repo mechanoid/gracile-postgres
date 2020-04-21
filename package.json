@@ -11,6 +11,8 @@
   "bin": {
     "gracile-postgres": "bin/gracile-postgres.js"
   },
+  "type": "module",
+  "module": "index.js",
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.1",
@@ -19,6 +21,10 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1"
   },
-  "type": "module",
-  "module": "index.js"
+  "peerDependencies": {
+    "gracile": "^0.0.1"
+  },
+  "dependencies": {
+    "pg": "^8.0.2"
+  }
 }
