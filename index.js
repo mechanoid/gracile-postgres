@@ -7,10 +7,12 @@ const isString = item => typeof item === 'string'
 let pool
 
 export const init = async config => {
-  console.log('init')
-  pool = new Pool({
-    max: config.poolSize || 20
-  })
+  console.log('initialize connection pool')
+  pool = new Pool(
+    Object.assign({}, config, {
+      max: config.poolSize || 20 // some default overrides
+    })
+  )
 
   pool.on('error', (err, client) => {
     console.error('Unexpected error on idle db client', err)
