@@ -8,9 +8,6 @@
   },
   "author": "Falk Hoppe <falkhoppe81@gmail.com>",
   "license": "MIT",
-  "bin": {
-    "gracile-postgres": "bin/gracile-postgres.js"
-  },
   "type": "module",
   "module": "index.js",
   "devDependencies": {
