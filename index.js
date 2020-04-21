@@ -20,8 +20,8 @@ export const init = async config => {
 
   try {
     client = await pool.connect()
-    await client.query(`CREATE TABLE IF NOT EXISTS "gracile-migrations" (
-        id integer NOT NULL,
+    await client.query(`CREATE TABLE IF NOT EXISTS gracilemigrations(
+        id varchar(255) NOT NULL,
         updated_date date,
         CONSTRAINT migration_pkey PRIMARY KEY (id)
       );`)
@@ -32,7 +32,16 @@ export const init = async config => {
   }
 }
 
-export const transmit = async migration => {
+const markMigrationQuery = id => [
+  'INSERT INTO gracilemigrations(id) values ($1) RETURNING *',
+  [id]
+]
+const existsQuery = id => [
+  'select 1 from gracilemigrations where id = $1 limit 1;',
+  [id]
+]
+
+export const transmit = async (id, migration) => {
   const querieOrQueries = migration()
   const queries =
     querieOrQueries && isString(querieOrQueries)
@@ -46,14 +55,23 @@ export const transmit = async migration => {
   let client
   try {
     client = await pool.connect()
+
+    const applied = await client.query(...existsQuery(id))
+
+    if (applied.rowCount > 0) {
+      return // this migration already has been applied
+    }
+
     // start transaction
     await client.query('BEGIN')
 
     try {
-      for (let i = 0; i < queries.length; i++) {
-        const q = queries[i]
+      for (const q of queries) {
+        console.log('Apply:', q.toString())
         isString(q) ? await client.query(q) : await client.query(...q) // for safe dynamic queries like ['STATEMENT ?', X]
       }
+
+      await client.query(...markMigrationQuery(id))
 
       // end transaction
       await client.query('COMMIT')
